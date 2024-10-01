@@ -6,10 +6,13 @@ import (
 )
 
 type Language struct {
-	Edit  string `json:"edit"`
-	Theme string `json:"theme"`
-	Dark  string `json:"dark"`
-	Light string `json:"light"`
+	Edit           string `json:"edit"`
+	Theme          string `json:"theme"`
+	Dark           string `json:"dark"`
+	Light          string `json:"light"`
+	ShowWindow     string `json:"showWindow"`
+	HideWindow     string `json:"hideWindow"`
+	HideInTrayMenu string `json:"hideInTrayMenu"`
 }
 
 //go:embed zh.json

@@ -2,28 +2,34 @@ package menus
 
 import (
 	"fyne.io/fyne/v2"
+	"fyne.io/fyne/v2/driver/desktop"
 	"fyne.io/fyne/v2/theme"
 	"lyn2n/i18n"
-	lyTheme "lyn2n/theme"
 )
 
 func Make(a fyne.App, w fyne.Window) *fyne.MainMenu {
 	editMenu := fyne.NewMenu(i18n.Lang().Edit)
-	for _, menu := range makeEditMenuSubItem(a, w) {
-		editMenu.Items = append(editMenu.Items, menu)
-	}
+	editMenu.Items = makeEditMenuSubItem(a, w)
 	return fyne.NewMainMenu(editMenu)
 }
 
-func makeEditMenuSubItem(a fyne.App, w fyne.Window) []*fyne.MenuItem {
-	themeMenu := fyne.NewMenuItem(i18n.Lang().Theme, nil)
-
-	themeDark := fyne.NewMenuItem(i18n.Lang().Dark, func() {
-		a.Settings().SetTheme(&lyTheme.ForcedVariant{Theme: theme.DefaultTheme(), Variant: theme.VariantDark})
-	})
-	themeLight := fyne.NewMenuItem(i18n.Lang().Light, func() {
-		a.Settings().SetTheme(&lyTheme.ForcedVariant{Theme: theme.DefaultTheme(), Variant: theme.VariantLight})
-	})
-	themeMenu.ChildMenu = fyne.NewMenu("", themeLight, themeDark)
-	return []*fyne.MenuItem{themeMenu}
+func MakeTray(a fyne.App, w fyne.Window) {
+	showWindowFlag := true
+	if desk, ok := a.(desktop.App); ok {
+		h := fyne.NewMenuItem(i18n.Lang().HideWindow, nil)
+		h.Icon = theme.HomeIcon()
+		menu := fyne.NewMenu("", h)
+		h.Action = func() {
+			if showWindowFlag {
+				h.Label = i18n.Lang().ShowWindow
+				w.Hide()
+			} else {
+				w.Show()
+				h.Label = i18n.Lang().HideWindow
+			}
+			showWindowFlag = !showWindowFlag
+			menu.Refresh()
+		}
+		desk.SetSystemTrayMenu(menu)
+	}
 }

@@ -12,6 +12,7 @@ func main() {
 	a := app.NewWithID("guquanlengyue.n2n")
 	a.SetIcon(statics.Icon)
 	w := a.NewWindow("冷月N2N")
+	menus.MakeTray(a, w)
 
 	w.SetMainMenu(menus.Make(a, w))
 	w.SetMaster()

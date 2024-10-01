@@ -2,5 +2,8 @@
   "edit": "设置",
   "theme": "主题",
   "dark": "黑暗",
-  "light": "明亮"
+  "light": "明亮",
+  "showWindow": "显示",
+  "hideWindow": "隐藏",
+  "hideInTrayMenu": "隐藏至托盘"
 }
