@@ -18,11 +18,18 @@ func makeEditMenuSubItem(a fyne.App, w fyne.Window) []*fyne.MenuItem {
 }
 
 func makeThemeMenuSubItem(a fyne.App, w fyne.Window) []*fyne.MenuItem {
-	themeDark := fyne.NewMenuItem(i18n.Lang().Dark, func() {
+	themeDark := fyne.NewMenuItem(i18n.Lang().Dark, nil)
+	themeLight := fyne.NewMenuItem(i18n.Lang().Light, nil)
+	themeLight.Checked = true
+	themeDark.Action = func() {
 		a.Settings().SetTheme(&lyTheme.ForcedVariant{Theme: theme.DefaultTheme(), Variant: theme.VariantDark})
-	})
-	themeLight := fyne.NewMenuItem(i18n.Lang().Light, func() {
+		themeDark.Checked = true
+		themeLight.Checked = false
+	}
+	themeLight.Action = func() {
 		a.Settings().SetTheme(&lyTheme.ForcedVariant{Theme: theme.DefaultTheme(), Variant: theme.VariantLight})
-	})
+		themeLight.Checked = true
+		themeDark.Checked = false
+	}
 	return []*fyne.MenuItem{themeLight, themeDark}
 }
