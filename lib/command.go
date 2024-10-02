@@ -33,6 +33,7 @@ func (c *Command) Exec() {
 	}
 	defer c.running.Unlock()
 	c.cmd = c.genCmd()
+	file, err := os.OpenFile("log.text", os.O_WRONLY|os.O_CREATE, 0644)
 
 	outO, err := c.cmd.StdoutPipe()
 	errO, err := c.cmd.StderrPipe()
@@ -52,6 +53,7 @@ func (c *Command) Exec() {
 		scanner := bufio.NewScanner(outO)
 		for scanner.Scan() {
 			text := scanner.Text()
+			file.WriteString(text + "\r\n")
 			log.Println(text)
 			if strings.HasPrefix(text, "Open device") {
 				ipBegin := strings.Index(text, "[ip=") + 4
@@ -73,7 +75,9 @@ func (c *Command) Exec() {
 		defer wg.Done()
 		scanner := bufio.NewScanner(errO)
 		for scanner.Scan() {
-			fmt.Println("ERROR:", scanner.Text())
+			text := scanner.Text()
+			file.WriteString(text + "\r\n")
+			fmt.Println("ERROR:", text)
 		}
 	}()
 	// 设置信号处理
