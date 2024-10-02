@@ -1,6 +1,7 @@
 package views
 
 import (
+	"encoding/json"
 	"errors"
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/widget"
@@ -8,6 +9,7 @@ import (
 	"lyn2n/i18n"
 	"lyn2n/lib"
 	"net"
+	"os"
 	"strconv"
 )
 
@@ -15,6 +17,7 @@ var cmd *lib.Command
 
 func MakeContent(a fyne.App, w fyne.Window) fyne.CanvasObject {
 	cmd = &lib.Command{}
+	load(cmd)
 	ipE := widget.NewEntry()
 	ipE.Validator = func(s string) error {
 		if net.ParseIP(s) == nil {
@@ -78,6 +81,7 @@ func MakeContent(a fyne.App, w fyne.Window) fyne.CanvasObject {
 		cmd.RoomName = roomNameE.Text
 		cmd.RoomKey = roomKeyE.Text
 		cmd.Encrypt = encryptedE.Selected
+		go save(cmd)
 		go cmd.Exec()
 	}
 	form.OnCancel = cmd.Kill
@@ -90,5 +94,39 @@ func MakeContent(a fyne.App, w fyne.Window) fyne.CanvasObject {
 			encryptedE.Disable()
 		}
 	}
+	ipE.SetText(cmd.Ip)
+	portE.SetText(cmd.Port)
+	roomNameE.SetText(cmd.RoomName)
+	roomKeyE.SetText(cmd.RoomKey)
+	encryptedE.SetSelected(cmd.Encrypt)
 	return form
+}
+func load(cmd *lib.Command) {
+	file, err := os.OpenFile("cache.json", os.O_RDONLY, 0644)
+	if err != nil {
+		fyne.LogError("Error opening cache.json", err)
+	}
+	defer file.Close()
+	decoder := json.NewDecoder(file)
+	err = decoder.Decode(cmd)
+	if err != nil {
+		fyne.LogError("Error loading cache.json", err)
+	}
+}
+
+func save(cmd *lib.Command) {
+	file, err := os.OpenFile("cache.json", os.O_WRONLY|os.O_CREATE, 0644)
+	defer file.Close()
+	if err != nil {
+		fyne.LogError("Error while opening cache.json", err)
+		return
+	}
+	marshal, err := json.Marshal(cmd)
+	if err != nil {
+		fyne.LogError("Error while marshalling cmd", err)
+	}
+	_, err = file.Write(marshal)
+	if err != nil {
+		fyne.LogError("Error while writing to cache.json", err)
+	}
 }

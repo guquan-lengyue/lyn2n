@@ -15,11 +15,11 @@ import (
 )
 
 type Command struct {
-	Ip       string
-	Port     string
-	RoomName string
-	RoomKey  string
-	Encrypt  string
+	Ip       string `json:"ip"`
+	Port     string `json:"port"`
+	RoomName string `json:"roomName"`
+	RoomKey  string `json:"roomKey"`
+	Encrypt  string `json:"encrypt"`
 
 	cmd     *exec.Cmd
 	running sync.Mutex

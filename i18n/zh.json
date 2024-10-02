@@ -6,6 +6,7 @@
   "showWindow": "显示",
   "hideWindow": "隐藏",
   "hideInTrayMenu": "隐藏至托盘",
+  "save": "保存",
   "ipEntry": "主节点ip",
   "portEntry": "主节点端口",
   "roomName": "房间名称",

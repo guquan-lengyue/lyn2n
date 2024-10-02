@@ -13,6 +13,7 @@ type Language struct {
 	ShowWindow     string `json:"showWindow"`
 	HideWindow     string `json:"hideWindow"`
 	HideInTrayMenu string `json:"hideInTrayMenu"`
+	Save           string `json:"save"`
 
 	IpEntry        string `json:"ipEntry"`
 	PortEntry      string `json:"portEntry"`
