@@ -5,5 +5,15 @@
   "light": "明亮",
   "showWindow": "显示",
   "hideWindow": "隐藏",
-  "hideInTrayMenu": "隐藏至托盘"
+  "hideInTrayMenu": "隐藏至托盘",
+  "ipEntry": "主节点ip",
+  "portEntry": "主节点端口",
+  "roomName": "房间名称",
+  "roomKey": "房间密码",
+  "encryptedEntry": "加密方式",
+  "connectText": "连接",
+  "disconnectText": "断开连接",
+  "errorInvalidIp": "ip格式不正确",
+  "errorInvalidPort": "端口格式不正确",
+  "errorRoomNameNotEmpty": "房间名称不能为空"
 }

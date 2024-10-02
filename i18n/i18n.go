@@ -13,6 +13,18 @@ type Language struct {
 	ShowWindow     string `json:"showWindow"`
 	HideWindow     string `json:"hideWindow"`
 	HideInTrayMenu string `json:"hideInTrayMenu"`
+
+	IpEntry        string `json:"ipEntry"`
+	PortEntry      string `json:"portEntry"`
+	RoomNameEntry  string `json:"roomName"`
+	RoomKeyEntry   string `json:"roomKey"`
+	EncryptedEntry string `json:"encryptedEntry"`
+	ConnectText    string `json:"connectText"`
+	DisconnectText string `json:"disconnectText"`
+
+	ErrorInvalidIp        string `json:"errorInvalidIp"`
+	ErrorInvalidPort      string `json:"errorInvalidPort"`
+	ErrorRoomNameNotEmpty string `json:"errorRoomNameNotEmpty"`
 }
 
 //go:embed zh.json
