@@ -58,6 +58,12 @@ func (c *Command) Exec() {
 				ipEnd := strings.Index(text, "][ifName")
 				event.IpChange <- text[ipBegin:ipEnd]
 			}
+			if strings.Contains(text, "> nul]") {
+				fyne.CurrentApp().SendNotification(&fyne.Notification{
+					Title:   "n2n连接失败",
+					Content: "无法给虚拟网卡设置ip",
+				})
+			}
 		}
 	}()
 
