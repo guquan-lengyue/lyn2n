@@ -81,6 +81,7 @@ func MakeContent(a fyne.App, w fyne.Window) fyne.CanvasObject {
 		cmd.RoomName = roomNameE.Text
 		cmd.RoomKey = roomKeyE.Text
 		cmd.Encrypt = encryptedE.Selected
+		cmd.StaticIp = staticIp.Text
 		go save(cmd)
 		go cmd.Exec()
 	}

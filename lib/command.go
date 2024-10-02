@@ -20,6 +20,7 @@ type Command struct {
 	RoomName string `json:"roomName"`
 	RoomKey  string `json:"roomKey"`
 	Encrypt  string `json:"encrypt"`
+	StaticIp string `json:"staticIp"`
 
 	cmd     *exec.Cmd
 	running sync.Mutex
@@ -95,13 +96,18 @@ func (c *Command) Kill() {
 			fyne.LogError("Error while killing process: ", err)
 		}
 	}
-	event.IpChange <- ""
+	if len(c.StaticIp) == 0 {
+		event.IpChange <- ""
+	}
 }
 
 func (c *Command) genCmd() *exec.Cmd {
 	command := exec.Command("./lib/edge", "-c", c.RoomName, "-l", c.Ip+":"+c.Port)
 	if len(c.RoomKey) > 0 {
 		command.Args = append(command.Args, "-k", c.RoomKey, c.encryptCmd())
+	}
+	if len(c.StaticIp) > 0 {
+		command.Args = append(command.Args, "-a", c.StaticIp)
 	}
 	command.SysProcAttr = &syscall.SysProcAttr{HideWindow: true}
 	return command
