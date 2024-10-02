@@ -19,6 +19,7 @@ type Language struct {
 	RoomNameEntry  string `json:"roomName"`
 	RoomKeyEntry   string `json:"roomKey"`
 	EncryptedEntry string `json:"encryptedEntry"`
+	StaticIpEntry  string `json:"StaticIpEntry"`
 	ConnectText    string `json:"connectText"`
 	DisconnectText string `json:"disconnectText"`
 

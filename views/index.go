@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/widget"
+	"lyn2n/event"
 	"lyn2n/i18n"
 	"lyn2n/lib"
 	"net"
@@ -43,6 +44,12 @@ func MakeContent(a fyne.App, w fyne.Window) fyne.CanvasObject {
 		return nil
 	}
 	roomKeyE := widget.NewEntry()
+	staticIp := widget.NewEntry()
+	go func() {
+		for ip := range event.IpChange {
+			staticIp.SetText(ip)
+		}
+	}()
 
 	types := []string{
 		"Twofish",
@@ -60,6 +67,7 @@ func MakeContent(a fyne.App, w fyne.Window) fyne.CanvasObject {
 		{Text: i18n.Lang().RoomNameEntry, Widget: roomNameE},
 		{Text: i18n.Lang().RoomKeyEntry, Widget: roomKeyE},
 		{Text: i18n.Lang().EncryptedEntry, Widget: encryptedE},
+		{Text: i18n.Lang().StaticIpEntry, Widget: staticIp},
 	}
 	form := widget.NewForm(items...)
 	form.SubmitText = i18n.Lang().ConnectText

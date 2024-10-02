@@ -11,6 +11,7 @@
   "roomName": "房间名称",
   "roomKey": "房间密码",
   "encryptedEntry": "加密方式",
+  "staticIpEntry": "我的ip",
   "connectText": "连接",
   "disconnectText": "断开连接",
   "errorInvalidIp": "ip格式不正确",

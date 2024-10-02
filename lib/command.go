@@ -9,6 +9,7 @@ import (
 	"os"
 	"os/exec"
 	"runtime"
+	"strings"
 	"sync"
 	"syscall"
 )
@@ -49,7 +50,13 @@ func (c *Command) Exec() {
 		defer wg.Done()
 		scanner := bufio.NewScanner(outO)
 		for scanner.Scan() {
-			fmt.Println("OUTPUT:", scanner.Text())
+			text := scanner.Text()
+			log.Println(text)
+			if strings.HasPrefix(text, "Open device") {
+				ipBegin := strings.Index(text, "[ip=") + 4
+				ipEnd := strings.Index(text, "][ifName")
+				event.IpChange <- text[ipBegin:ipEnd]
+			}
 		}
 	}()
 
@@ -65,7 +72,6 @@ func (c *Command) Exec() {
 	// 设置信号处理
 	go func() {
 		<-event.CloseMainWindowsEvent // 等待信号
-		fmt.Println("收到停止信号，正在停止命令...")
 		c.Kill()
 	}()
 	// 等待命令完成
@@ -79,28 +85,17 @@ func (c *Command) Kill() {
 	if c.cmd == nil {
 		return
 	}
+
 	if runtime.GOOS == "windows" {
-		dll, err := syscall.LoadDLL("kernel32.dll")
-		if err != nil {
-			fyne.LogError("Error while loading kernel32:", err)
-			return
-		}
-		p, err := dll.FindProc("GenerateConsoleCtrlEvent")
-		if err != nil {
-			fyne.LogError("Error while loading kernel32:", err)
-			return
-		}
-		r, _, err := p.Call(syscall.CTRL_BREAK_EVENT, uintptr(c.cmd.Process.Pid))
-		if (err != nil && "The operation completed successfully." != err.Error()) || r == 0 {
-			fyne.LogError("Error while loading kernel32:", err)
-		} else {
-			c.cmd = nil
+		if err := c.cmd.Process.Signal(os.Kill); err != nil {
+			fyne.LogError("Error while killing process: ", err)
 		}
 	} else {
 		if err := c.cmd.Process.Signal(os.Interrupt); err != nil {
 			fyne.LogError("Error while killing process: ", err)
 		}
 	}
+	event.IpChange <- ""
 }
 
 func (c *Command) genCmd() *exec.Cmd {
@@ -125,3 +120,23 @@ func (c *Command) encryptCmd() string {
 	}
 	return ""
 }
+
+//
+//func (c *Command) windowKill() {
+//	dll, err := syscall.LoadDLL("kernel32.dll")
+//	if err != nil {
+//		fyne.LogError("Error while loading kernel32:", err)
+//		return
+//	}
+//	p, err := dll.FindProc("GenerateConsoleCtrlEvent")
+//	if err != nil {
+//		fyne.LogError("Error while loading kernel32:", err)
+//		return
+//	}
+//	r, _, err := p.Call(syscall.CTRL_BREAK_EVENT, uintptr(c.cmd.Process.Pid))
+//	if (err != nil && "The operation completed successfully." != err.Error()) || r == 0 {
+//		fyne.LogError("Error while loading kernel32:", err)
+//	} else {
+//		c.cmd = nil
+//	}
+//}
