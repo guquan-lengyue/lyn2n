@@ -5,6 +5,6 @@ import (
 	"fyne.io/fyne/v2"
 )
 
-//go:embed icon.jpg
+//go:embed icon.ico
 var iconResource []byte
 var Icon = fyne.NewStaticResource("icon", iconResource)

@@ -70,7 +70,7 @@ func MakeContent(a fyne.App, w fyne.Window) fyne.CanvasObject {
 		{Text: i18n.Lang().RoomNameEntry, Widget: roomNameE},
 		{Text: i18n.Lang().RoomKeyEntry, Widget: roomKeyE},
 		{Text: i18n.Lang().EncryptedEntry, Widget: encryptedE},
-		{Text: i18n.Lang().StaticIpEntry, Widget: staticIp},
+		{Text: i18n.Lang().StaticIpEntry, Widget: staticIp, HintText: "为空自动获取ip"},
 	}
 	form := widget.NewForm(items...)
 	form.SubmitText = i18n.Lang().ConnectText
