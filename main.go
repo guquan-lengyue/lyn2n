@@ -3,6 +3,7 @@ package main
 import (
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
+	"lyn2n/event"
 	"lyn2n/menus"
 	"lyn2n/statics"
 	"lyn2n/views"
@@ -18,6 +19,9 @@ func main() {
 	w.SetMaster()
 
 	w.SetContent(views.MakeContent(a, w))
+	w.SetOnClosed(func() {
+		event.CloseMainWindowsEvent <- struct{}{}
+	})
 
 	w.Resize(fyne.NewSize(520, 520))
 	w.ShowAndRun()

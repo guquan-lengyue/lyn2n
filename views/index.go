@@ -4,14 +4,16 @@ import (
 	"errors"
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/widget"
-	"log"
 	"lyn2n/i18n"
 	"lyn2n/lib"
 	"net"
 	"strconv"
 )
 
+var cmd *lib.Command
+
 func MakeContent(a fyne.App, w fyne.Window) fyne.CanvasObject {
+	cmd = &lib.Command{}
 	ipE := widget.NewEntry()
 	ipE.Validator = func(s string) error {
 		if net.ParseIP(s) == nil {
@@ -48,9 +50,7 @@ func MakeContent(a fyne.App, w fyne.Window) fyne.CanvasObject {
 		"ChaCha20",
 		"Speck-CTR",
 	}
-	encryptedE := widget.NewRadioGroup(types, func(s string) {
-		log.Printf(s)
-	})
+	encryptedE := widget.NewRadioGroup(types, nil)
 	encryptedE.Horizontal = true
 	encryptedE.Disable()
 
@@ -63,25 +63,22 @@ func MakeContent(a fyne.App, w fyne.Window) fyne.CanvasObject {
 	}
 	form := widget.NewForm(items...)
 	form.SubmitText = i18n.Lang().ConnectText
-	form.CancelText = i18n.Lang().ConnectText
+	form.CancelText = i18n.Lang().DisconnectText
 	form.OnSubmit = func() {
-		ip := ipE.Text
-		port := portE.Text
-		roomName := roomNameE.Text
-		roomKey := roomKeyE.Text
-		cmd := &lib.Command{
-			Ip:       ip,
-			Port:     port,
-			RoomName: roomName,
-			RoomKey:  roomKey,
-			Encrypt:  encryptedE.Selected,
-		}
-		lib.Exec(cmd)
+		cmd.Ip = ipE.Text
+		cmd.Port = portE.Text
+		cmd.RoomName = roomNameE.Text
+		cmd.RoomKey = roomKeyE.Text
+		cmd.Encrypt = encryptedE.Selected
+		go cmd.Exec()
 	}
+	form.OnCancel = cmd.Kill
 	roomKeyE.OnChanged = func(s string) {
 		if len(s) > 0 {
+			encryptedE.SetSelected("AES")
 			encryptedE.Enable()
 		} else {
+			encryptedE.SetSelected("")
 			encryptedE.Disable()
 		}
 	}
