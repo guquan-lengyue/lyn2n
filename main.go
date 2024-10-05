@@ -21,9 +21,12 @@ func main() {
 		panic(err)
 	}
 	defer logFile.Close()
-	// 创建一个 MultiWriter，将日志输出到文件和终端
 	multiWriter := io.MultiWriter(logFile, os.Stdout)
 	log.SetOutput(multiWriter)
+	// 创建一个 MultiWriter，将日志输出到文件和终端
+	log.Println("---------------------------------------------------------------------------")
+	log.Println("---------------------VERSION:", VERSION, "------------------------------------")
+	log.Println("---------------------------------------------------------------------------")
 	a := app.NewWithID("guquanlengyue.n2n")
 	a.SetIcon(statics.Icon)
 	w := a.NewWindow("冷月N2N")
