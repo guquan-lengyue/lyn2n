@@ -17,5 +17,11 @@
   "disconnectText": "断开连接",
   "errorInvalidIp": "ip格式不正确",
   "errorInvalidPort": "端口格式不正确",
-  "errorRoomNameNotEmpty": "房间名称不能为空"
+  "errorRoomNameNotEmpty": "房间名称不能为空",
+  "errorN2NStartError": "n2n启动失败",
+  "notifyN2NConnectErrTitle": "n2n连接失败",
+  "notifyN2NConnectErrContent": "无法给虚拟网卡设置ip",
+  "notifyN2NConnectSuccessTitle": "n2n连接成功",
+  "notifyN2NConnectSuccessContent": "我的ip",
+  "formHintMyIp": "为空自动获取ip"
 }

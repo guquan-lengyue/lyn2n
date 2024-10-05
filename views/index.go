@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/widget"
+	"log"
 	"lyn2n/event"
 	"lyn2n/i18n"
 	"lyn2n/lib"
@@ -70,7 +71,7 @@ func MakeContent(a fyne.App, w fyne.Window) fyne.CanvasObject {
 		{Text: i18n.Lang().RoomNameEntry, Widget: roomNameE},
 		{Text: i18n.Lang().RoomKeyEntry, Widget: roomKeyE},
 		{Text: i18n.Lang().EncryptedEntry, Widget: encryptedE},
-		{Text: i18n.Lang().StaticIpEntry, Widget: staticIp, HintText: "为空自动获取ip"},
+		{Text: i18n.Lang().StaticIpEntry, Widget: staticIp, HintText: i18n.Lang().FormHintMyIp},
 	}
 	form := widget.NewForm(items...)
 	form.SubmitText = i18n.Lang().ConnectText
@@ -105,29 +106,29 @@ func MakeContent(a fyne.App, w fyne.Window) fyne.CanvasObject {
 func load(cmd *lib.Command) {
 	file, err := os.OpenFile("cache.json", os.O_RDONLY, 0644)
 	if err != nil {
-		fyne.LogError("Error opening cache.json", err)
+		log.Println("Error opening cache.json", err)
 	}
 	defer file.Close()
 	decoder := json.NewDecoder(file)
 	err = decoder.Decode(cmd)
 	if err != nil {
-		fyne.LogError("Error loading cache.json", err)
+		log.Println("Error loading cache.json", err)
 	}
 }
 
 func save(cmd *lib.Command) {
-	file, err := os.OpenFile("cache.json", os.O_WRONLY|os.O_CREATE, 0644)
+	file, err := os.OpenFile("cache.json", os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
 	defer file.Close()
 	if err != nil {
-		fyne.LogError("Error while opening cache.json", err)
+		log.Println("Error while opening cache.json", err)
 		return
 	}
 	marshal, err := json.Marshal(cmd)
 	if err != nil {
-		fyne.LogError("Error while marshalling cmd", err)
+		log.Println("Error while marshalling cmd", err)
 	}
 	_, err = file.Write(marshal)
 	if err != nil {
-		fyne.LogError("Error while writing to cache.json", err)
+		log.Println("Error while writing to cache.json", err)
 	}
 }
