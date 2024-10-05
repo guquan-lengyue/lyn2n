@@ -77,7 +77,6 @@ func MakeContent(a fyne.App, w fyne.Window) fyne.CanvasObject {
 	form.SubmitText = i18n.Lang().ConnectText
 	form.CancelText = i18n.Lang().DisconnectText
 	form.OnSubmit = onSubmit(ipE, portE, roomNameE, roomKeyE, encryptedE, staticIp)
-	form.OnCancel = cmd.Kill
 	roomKeyE.OnChanged = func(s string) {
 		if len(s) > 0 {
 			encryptedE.SetSelected("AES")
