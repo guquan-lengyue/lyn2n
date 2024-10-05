@@ -76,16 +76,7 @@ func MakeContent(a fyne.App, w fyne.Window) fyne.CanvasObject {
 	form := widget.NewForm(items...)
 	form.SubmitText = i18n.Lang().ConnectText
 	form.CancelText = i18n.Lang().DisconnectText
-	form.OnSubmit = func() {
-		cmd.Ip = ipE.Text
-		cmd.Port = portE.Text
-		cmd.RoomName = roomNameE.Text
-		cmd.RoomKey = roomKeyE.Text
-		cmd.Encrypt = encryptedE.Selected
-		cmd.StaticIp = staticIp.Text
-		go save(cmd)
-		go cmd.Exec()
-	}
+	form.OnSubmit = onSubmit(ipE, portE, roomNameE, roomKeyE, encryptedE, staticIp)
 	form.OnCancel = cmd.Kill
 	roomKeyE.OnChanged = func(s string) {
 		if len(s) > 0 {
@@ -101,7 +92,36 @@ func MakeContent(a fyne.App, w fyne.Window) fyne.CanvasObject {
 	roomNameE.SetText(cmd.RoomName)
 	roomKeyE.SetText(cmd.RoomKey)
 	encryptedE.SetSelected(cmd.Encrypt)
+	go func() {
+		for {
+			select {
+			case <-event.N2NConnectedEvent:
+				form.OnCancel = cmd.Kill
+				form.OnSubmit = nil
+			case <-event.N2NDisConnectedEvent:
+				form.OnCancel = nil
+				form.OnSubmit = onSubmit(ipE, portE, roomNameE, roomKeyE, encryptedE, staticIp)
+			case <-event.N2NConnectedErr:
+				form.OnCancel = cmd.Kill
+				form.OnSubmit = nil
+			}
+			form.Refresh()
+		}
+	}()
 	return form
+}
+
+func onSubmit(ipE *widget.Entry, portE *widget.Entry, roomNameE *widget.Entry, roomKeyE *widget.Entry, encryptedE *widget.RadioGroup, staticIp *widget.Entry) func() {
+	return func() {
+		cmd.Ip = ipE.Text
+		cmd.Port = portE.Text
+		cmd.RoomName = roomNameE.Text
+		cmd.RoomKey = roomKeyE.Text
+		cmd.Encrypt = encryptedE.Selected
+		cmd.StaticIp = staticIp.Text
+		go save(cmd)
+		go cmd.Exec()
+	}
 }
 func load(cmd *lib.Command) {
 	file, err := os.OpenFile("cache.json", os.O_RDONLY, 0644)

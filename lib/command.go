@@ -74,6 +74,7 @@ func (c *Command) Exec() {
 	if err = c.cmd.Wait(); err != nil {
 		log.Printf(i18n.Lang().ErrorN2NStartErr+": %v", err)
 	}
+	event.N2NDisConnectedEvent <- event.EmptyEvenVar
 }
 
 func (c *Command) cmdLog(outO io.ReadCloser) {
@@ -89,6 +90,7 @@ func (c *Command) cmdLog(outO io.ReadCloser) {
 			ip = text[ipBegin:ipEnd]
 		}
 		if strings.Contains(text, "Unable to set device n2n IP address") {
+			event.N2NConnectedErr <- event.EmptyEvenVar
 			fyne.CurrentApp().SendNotification(&fyne.Notification{
 				Title:   i18n.Lang().NotifyN2NConnectErrTitle,
 				Content: i18n.Lang().NotifyN2NConnectErrContent,
@@ -97,6 +99,7 @@ func (c *Command) cmdLog(outO io.ReadCloser) {
 		}
 		if connectFlag && strings.Contains(text, "[OK] edge <<< ================ >>> supernode") {
 			event.IpChange <- ip
+			event.N2NConnectedEvent <- event.EmptyEvenVar
 			fyne.CurrentApp().SendNotification(&fyne.Notification{
 				Title:   i18n.Lang().NotifyN2NConnectSuccessTitle,
 				Content: i18n.Lang().NotifyN2NConnectSuccessContent + ": " + ip,

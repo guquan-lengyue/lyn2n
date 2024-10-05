@@ -1,3 +1,3 @@
 package event
 
-var CloseMainWindowsEvent = make(chan struct{}, 1)
+var CloseMainWindowsEvent = make(chan EmptySignal, 1)
