@@ -12,7 +12,7 @@ import (
 	"os"
 )
 
-const VERSION = 20241005
+var VERSION = "20241005"
 
 func main() {
 	// 创建或打开日志文件
