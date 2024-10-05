@@ -12,6 +12,8 @@ import (
 	"os"
 )
 
+const VERSION = 20241005
+
 func main() {
 	// 创建或打开日志文件
 	logFile, err := os.OpenFile("app.log", os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0666)

@@ -2,11 +2,13 @@ package lib
 
 import (
 	"bufio"
+	"fmt"
 	"fyne.io/fyne/v2"
 	"io"
 	"log"
 	"lyn2n/event"
 	"lyn2n/i18n"
+	"net"
 	"os"
 	"os/exec"
 	"runtime"
@@ -109,9 +111,7 @@ func (c *Command) Kill() {
 	}
 
 	if runtime.GOOS == "windows" {
-		if err := c.cmd.Process.Signal(os.Kill); err != nil {
-			log.Println("Error while killing process: ", err)
-		}
+		c.disConnect()
 	} else {
 		if err := c.cmd.Process.Signal(os.Interrupt); err != nil {
 			log.Println("Error while killing process: ", err)
@@ -122,8 +122,38 @@ func (c *Command) Kill() {
 	}
 }
 
+func (c *Command) disConnect() {
+	ip := "localhost"
+	port := "15644"
+	message := "stop"
+
+	// 创建 UDP 地址
+	addr, err := net.ResolveUDPAddr("udp", ip+":"+port)
+	if err != nil {
+		fmt.Println("解析地址时出错:", err)
+		return
+	}
+
+	// 创建 UDP 连接
+	conn, err := net.DialUDP("udp", nil, addr)
+	if err != nil {
+		fmt.Println("创建连接时出错:", err)
+		return
+	}
+	defer conn.Close()
+
+	// 发送消息
+	_, err = conn.Write([]byte(message))
+	if err != nil {
+		fmt.Println("发送消息时出错:", err)
+		return
+	}
+
+	fmt.Println("消息已发送:", message)
+}
+
 func (c *Command) genCmd() *exec.Cmd {
-	command := exec.Command("./lib/edge", "-c", c.RoomName, "-l", c.Ip+":"+c.Port)
+	command := exec.Command("./lib/edge", "-t", "15644", "-c", c.RoomName, "-l", c.Ip+":"+c.Port)
 	if len(c.RoomKey) > 0 {
 		command.Args = append(command.Args, "-k", c.RoomKey, c.encryptCmd())
 	}
