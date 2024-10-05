@@ -3,15 +3,15 @@ package views
 import (
 	"encoding/json"
 	"errors"
-	"fyne.io/fyne/v2"
-	"fyne.io/fyne/v2/widget"
 	"log"
 	"lyn2n/event"
 	"lyn2n/i18n"
 	"lyn2n/lib"
-	"net"
 	"os"
 	"strconv"
+
+	"fyne.io/fyne/v2"
+	"fyne.io/fyne/v2/widget"
 )
 
 var cmd *lib.Command
@@ -21,8 +21,8 @@ func MakeContent(a fyne.App, w fyne.Window) fyne.CanvasObject {
 	load(cmd)
 	ipE := widget.NewEntry()
 	ipE.Validator = func(s string) error {
-		if net.ParseIP(s) == nil {
-			return errors.New(i18n.Lang().ErrorInvalidIp)
+		if len(s) == 0 {
+			return errors.New(i18n.Lang().ErrorInvalidAddr)
 		}
 		return nil
 	}
@@ -95,14 +95,16 @@ func MakeContent(a fyne.App, w fyne.Window) fyne.CanvasObject {
 		for {
 			select {
 			case <-event.N2NConnectedEvent:
-				form.OnCancel = cmd.Kill
+				form.OnCancel = cmd.Stop
 				form.OnSubmit = nil
 			case <-event.N2NDisConnectedEvent:
 				form.OnCancel = nil
 				form.OnSubmit = onSubmit(ipE, portE, roomNameE, roomKeyE, encryptedE, staticIp)
 			case <-event.N2NConnectedErr:
-				form.OnCancel = cmd.Kill
+				form.OnCancel = cmd.Stop
 				form.OnSubmit = nil
+				cmd.Stop()
+				cmd.Kill()
 			}
 			form.Refresh()
 		}

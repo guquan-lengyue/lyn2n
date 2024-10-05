@@ -3,7 +3,6 @@ package lib
 import (
 	"bufio"
 	"fmt"
-	"fyne.io/fyne/v2"
 	"io"
 	"log"
 	"lyn2n/event"
@@ -15,6 +14,9 @@ import (
 	"strings"
 	"sync"
 	"syscall"
+	"time"
+
+	"fyne.io/fyne/v2"
 )
 
 type Command struct {
@@ -27,6 +29,7 @@ type Command struct {
 
 	cmd     *exec.Cmd
 	running sync.Mutex
+	timer   *time.Timer
 }
 
 func (c *Command) Exec() {
@@ -35,9 +38,14 @@ func (c *Command) Exec() {
 		return
 	}
 	defer c.running.Unlock()
+	c.timer = time.NewTimer(3 * time.Minute)
+	defer c.timer.Stop()
 	c.cmd = c.genCmd()
 
 	outO, err := c.cmd.StdoutPipe()
+	if err != nil {
+		log.Println("Error while executing command: ", err)
+	}
 	errO, err := c.cmd.StderrPipe()
 	if err != nil {
 		log.Println("Error while executing command: ", err)
@@ -68,7 +76,7 @@ func (c *Command) Exec() {
 	// 设置信号处理
 	go func() {
 		<-event.CloseMainWindowsEvent // 等待信号
-		c.Kill()
+		c.Stop()
 	}()
 	// 等待命令完成
 	if err = c.cmd.Wait(); err != nil {
@@ -81,6 +89,19 @@ func (c *Command) cmdLog(outO io.ReadCloser) {
 	scanner := bufio.NewScanner(outO)
 	connectFlag := true
 	var ip string
+	connectSuccess := make(chan event.EmptySignal, 1)
+	go func() {
+		select {
+		case <-c.timer.C:
+			event.N2NConnectedErr <- event.EmptyEvenVar
+			fyne.CurrentApp().SendNotification(&fyne.Notification{
+				Title:   i18n.Lang().NotifyN2NConnectErrTitle,
+				Content: i18n.Lang().NotifyN2NConnectErrTimeoutContent,
+			})
+		case <-connectSuccess:
+			c.timer.Stop()
+		}
+	}()
 	for scanner.Scan() {
 		text := scanner.Text()
 		log.Println(text)
@@ -93,18 +114,36 @@ func (c *Command) cmdLog(outO io.ReadCloser) {
 			event.N2NConnectedErr <- event.EmptyEvenVar
 			fyne.CurrentApp().SendNotification(&fyne.Notification{
 				Title:   i18n.Lang().NotifyN2NConnectErrTitle,
-				Content: i18n.Lang().NotifyN2NConnectErrContent,
+				Content: i18n.Lang().NotifyN2NConnectErrTimeoutContent,
 			})
 			connectFlag = false
 		}
 		if connectFlag && strings.Contains(text, "[OK] edge <<< ================ >>> supernode") {
 			event.IpChange <- ip
 			event.N2NConnectedEvent <- event.EmptyEvenVar
+			connectSuccess <- event.EmptyEvenVar
 			fyne.CurrentApp().SendNotification(&fyne.Notification{
 				Title:   i18n.Lang().NotifyN2NConnectSuccessTitle,
 				Content: i18n.Lang().NotifyN2NConnectSuccessContent + ": " + ip,
 			})
 		}
+	}
+}
+
+func (c *Command) Stop() {
+	if c.cmd == nil {
+		return
+	}
+
+	if runtime.GOOS == "windows" {
+		c.disConnect()
+	} else {
+		if err := c.cmd.Process.Signal(os.Interrupt); err != nil {
+			log.Println("Error while killing process: ", err)
+		}
+	}
+	if len(c.StaticIp) == 0 {
+		event.IpChange <- ""
 	}
 }
 
@@ -114,9 +153,11 @@ func (c *Command) Kill() {
 	}
 
 	if runtime.GOOS == "windows" {
-		c.disConnect()
+		if err := c.cmd.Process.Signal(os.Kill); err != nil {
+			log.Println("Error while killing process: ", err)
+		}
 	} else {
-		if err := c.cmd.Process.Signal(os.Interrupt); err != nil {
+		if err := c.cmd.Process.Signal(os.Kill); err != nil {
 			log.Println("Error while killing process: ", err)
 		}
 	}

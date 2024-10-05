@@ -1,10 +1,12 @@
 package menus
 
 import (
+	"lyn2n/i18n"
+	"lyn2n/status"
+	lyTheme "lyn2n/theme"
+
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/theme"
-	"lyn2n/i18n"
-	lyTheme "lyn2n/theme"
 )
 
 func makeEditMenuSubItem(a fyne.App, w fyne.Window) []*fyne.MenuItem {
@@ -13,6 +15,7 @@ func makeEditMenuSubItem(a fyne.App, w fyne.Window) []*fyne.MenuItem {
 
 	hideInTrayMenu := fyne.NewMenuItem(i18n.Lang().HideInTrayMenu, func() {
 		w.Hide()
+		status.WindowsHideStatus = true
 	})
 
 	return []*fyne.MenuItem{themeMenu, hideInTrayMenu}

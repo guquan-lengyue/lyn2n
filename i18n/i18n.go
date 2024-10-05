@@ -25,16 +25,17 @@ type Language struct {
 	DisconnectText string `json:"disconnectText"`
 	FormHintMyIp   string `json:"formHintMyIp"`
 
-	ErrorInvalidIp        string `json:"errorInvalidIp"`
+	ErrorInvalidAddr      string `json:"errorInvalidAddr"`
 	ErrorInvalidPort      string `json:"errorInvalidPort"`
 	ErrorRoomNameNotEmpty string `json:"errorRoomNameNotEmpty"`
 
 	ErrorN2NStartErr string `json:"errorN2NStartErr"`
 
-	NotifyN2NConnectErrTitle       string `json:"notifyN2NConnectErrTitle"`
-	NotifyN2NConnectErrContent     string `json:"notifyN2NConnectErrContent"`
-	NotifyN2NConnectSuccessTitle   string `json:"notifyN2NConnectSuccessTitle"`
-	NotifyN2NConnectSuccessContent string `json:"notifyN2NConnectSuccessContent"`
+	NotifyN2NConnectErrTitle          string `json:"notifyN2NConnectErrTitle"`
+	NotifyN2NConnectErrContent        string `json:"notifyN2NConnectErrContent"`
+	NotifyN2NConnectErrTimeoutContent string `json:"notifyN2NConnectErrTimeoutContent"`
+	NotifyN2NConnectSuccessTitle      string `json:"notifyN2NConnectSuccessTitle"`
+	NotifyN2NConnectSuccessContent    string `json:"notifyN2NConnectSuccessContent"`
 }
 
 //go:embed zh.json

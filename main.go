@@ -1,8 +1,6 @@
 package main
 
 import (
-	"fyne.io/fyne/v2"
-	"fyne.io/fyne/v2/app"
 	"io"
 	"log"
 	"lyn2n/event"
@@ -10,6 +8,9 @@ import (
 	"lyn2n/statics"
 	"lyn2n/views"
 	"os"
+
+	"fyne.io/fyne/v2"
+	"fyne.io/fyne/v2/app"
 )
 
 var VERSION = "20241005"
@@ -37,7 +38,7 @@ func main() {
 
 	w.SetContent(views.MakeContent(a, w))
 	w.SetOnClosed(func() {
-		event.CloseMainWindowsEvent <- struct{}{}
+		event.CloseMainWindowsEvent <- event.EmptyEvenVar
 	})
 
 	w.Resize(fyne.NewSize(520, 520))

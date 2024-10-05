@@ -1,0 +1,43 @@
+name: Go CI
+
+on:
+  push:
+    tags:
+      - 'v*'  # 只在以 v_ 开头的标签推送时触发
+
+permissions:
+  contents: write
+
+jobs:
+  build_windows:
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up Go
+      uses: actions/setup-go@v2
+      with:
+        go-version: '1.22' # 你可以根据需要更改 Go 版本
+
+    - name: Cache Go modules
+      uses: actions/cache@v2
+      with:
+        path: |
+          ~/.cache/go-build
+          ~/go/pkg/mod
+        key: ${{ runner.os }}-go-${{ hashFiles('**/*.go') }}
+        
+    - name: Show current date
+      run: echo $(date +'%Y%m%d')
+
+    - name: Build Windows executable
+      run: go build -ldflags="-s -w -H windowsgui -X main.VERSION=$(date +'%Y%m%d')" -o lyN2N.exe
+
+    - name: Upload Windows executable to Release
+      uses: softprops/action-gh-release@v1
+      with:
+        files: lyN2N.exe
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

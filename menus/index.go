@@ -1,10 +1,12 @@
 package menus
 
 import (
+	"lyn2n/i18n"
+	"lyn2n/status"
+
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/driver/desktop"
 	"fyne.io/fyne/v2/theme"
-	"lyn2n/i18n"
 )
 
 func Make(a fyne.App, w fyne.Window) *fyne.MainMenu {
@@ -14,20 +16,19 @@ func Make(a fyne.App, w fyne.Window) *fyne.MainMenu {
 }
 
 func MakeTray(a fyne.App, w fyne.Window) {
-	showWindowFlag := true
 	if desk, ok := a.(desktop.App); ok {
 		h := fyne.NewMenuItem(i18n.Lang().HideWindow, nil)
 		h.Icon = theme.HomeIcon()
 		menu := fyne.NewMenu("", h)
 		h.Action = func() {
-			if showWindowFlag {
+			if status.WindowsHideStatus {
 				h.Label = i18n.Lang().ShowWindow
 				w.Hide()
 			} else {
 				w.Show()
 				h.Label = i18n.Lang().HideWindow
 			}
-			showWindowFlag = !showWindowFlag
+			status.WindowsHideStatus = !status.WindowsHideStatus
 			menu.Refresh()
 		}
 		desk.SetSystemTrayMenu(menu)
