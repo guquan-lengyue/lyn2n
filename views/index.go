@@ -49,12 +49,9 @@ func MakeContent(a fyne.App, w fyne.Window) fyne.CanvasObject {
 	}
 	roomKeyE := widget.NewEntry()
 	staticIp := widget.NewEntry()
-	go func() {
-		for ip := range event.IpChange {
-			staticIp.SetText(ip)
-		}
-	}()
-
+	event.IpChange.Listen("ViewIpChangeEventHandle", func(ip string) {
+		staticIp.SetText(ip)
+	})
 	types := []string{
 		"Twofish",
 		"AES",
@@ -91,24 +88,23 @@ func MakeContent(a fyne.App, w fyne.Window) fyne.CanvasObject {
 	roomNameE.SetText(cmd.RoomName)
 	roomKeyE.SetText(cmd.RoomKey)
 	encryptedE.SetSelected(cmd.Encrypt)
-	go func() {
-		for {
-			select {
-			case <-event.N2NConnectedEvent:
-				form.OnCancel = cmd.Stop
-				form.OnSubmit = nil
-			case <-event.N2NDisConnectedEvent:
-				form.OnCancel = nil
-				form.OnSubmit = onSubmit(ipE, portE, roomNameE, roomKeyE, encryptedE, staticIp)
-			case <-event.N2NConnectedErr:
-				form.OnCancel = cmd.Stop
-				form.OnSubmit = nil
-				cmd.Stop()
-				cmd.Kill()
-			}
-			form.Refresh()
-		}
-	}()
+	event.N2NConnectedEvent.Listen("ViewsN2NConnectedEventHandle", func(any) {
+		form.OnCancel = cmd.Stop
+		form.OnSubmit = nil
+		form.Refresh()
+	})
+	event.N2NDisConnectedEvent.Listen("ViewsN2NDisConnectedEventHandle", func(any) {
+		form.OnCancel = nil
+		form.OnSubmit = onSubmit(ipE, portE, roomNameE, roomKeyE, encryptedE, staticIp)
+		form.Refresh()
+	})
+	event.N2NConnectedErr.Listen("ViewsN2NConnectedErrHandle", func(a any) {
+		form.OnCancel = cmd.Stop
+		form.OnSubmit = nil
+		cmd.Stop()
+		cmd.Kill()
+		form.Refresh()
+	})
 	return form
 }
 

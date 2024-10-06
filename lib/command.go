@@ -73,17 +73,15 @@ func (c *Command) Exec() {
 			log.Println("ERROR:", text)
 		}
 	}()
-	// 设置信号处理
-	go func() {
-		<-event.CloseMainWindowsEvent // 等待信号
+	event.CloseMainWindowsEvent.Listen("CommandStopN2NEdge", func(any) {
 		c.Stop()
 		c.Kill()
-	}()
+	})
 	// 等待命令完成
 	if err = c.cmd.Wait(); err != nil {
 		log.Printf(i18n.Lang().ErrorN2NStartErr+": %v", err)
 	}
-	event.N2NDisConnectedEvent <- event.EmptyEvenVar
+	event.N2NDisConnectedEvent.Triger(nil)
 }
 
 func (c *Command) cmdLog(outO io.ReadCloser) {
@@ -91,10 +89,11 @@ func (c *Command) cmdLog(outO io.ReadCloser) {
 	connectFlag := true
 	var ip string
 	connectSuccess := make(chan event.EmptySignal, 1)
+	// connect timeout listener
 	go func() {
 		select {
 		case <-c.timer.C:
-			event.N2NConnectedErr <- event.EmptyEvenVar
+			event.N2NConnectedErr.Triger(nil)
 			fyne.CurrentApp().SendNotification(&fyne.Notification{
 				Title:   i18n.Lang().NotifyN2NConnectErrTitle,
 				Content: i18n.Lang().NotifyN2NConnectErrTimeoutContent,
@@ -112,7 +111,7 @@ func (c *Command) cmdLog(outO io.ReadCloser) {
 			ip = text[ipBegin:ipEnd]
 		}
 		if strings.Contains(text, "Unable to set device n2n IP address") {
-			event.N2NConnectedErr <- event.EmptyEvenVar
+			event.N2NConnectedErr.Triger(nil)
 			fyne.CurrentApp().SendNotification(&fyne.Notification{
 				Title:   i18n.Lang().NotifyN2NConnectErrTitle,
 				Content: i18n.Lang().NotifyN2NConnectErrTimeoutContent,
@@ -120,8 +119,8 @@ func (c *Command) cmdLog(outO io.ReadCloser) {
 			connectFlag = false
 		}
 		if connectFlag && strings.Contains(text, "[OK] edge <<< ================ >>> supernode") {
-			event.IpChange <- ip
-			event.N2NConnectedEvent <- event.EmptyEvenVar
+			event.IpChange.Triger(ip)
+			event.N2NConnectedEvent.Triger(nil)
 			connectSuccess <- event.EmptyEvenVar
 			fyne.CurrentApp().SendNotification(&fyne.Notification{
 				Title:   i18n.Lang().NotifyN2NConnectSuccessTitle,
@@ -143,7 +142,7 @@ func (c *Command) Stop() {
 		}
 	}
 	if len(c.StaticIp) == 0 {
-		event.IpChange <- ""
+		event.IpChange.Triger("")
 	}
 }
 
@@ -161,7 +160,7 @@ func (c *Command) Kill() {
 		}
 	}
 	if len(c.StaticIp) == 0 {
-		event.IpChange <- ""
+		event.IpChange.Triger("")
 	}
 }
 
