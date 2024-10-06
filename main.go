@@ -37,9 +37,8 @@ func main() {
 	w.SetMaster()
 
 	w.SetContent(views.MakeContent(a, w))
-	w.SetOnClosed(func() {
-		event.CloseMainWindowsEvent.Triger(nil)
-	})
 	w.Resize(fyne.NewSize(520, 520))
 	w.ShowAndRun()
+
+	event.CloseMainWindowsEvent.Triger(nil)
 }
