@@ -21,16 +21,18 @@ func MakeTray(a fyne.App, w fyne.Window) {
 		h.Icon = theme.HomeIcon()
 		menu := fyne.NewMenu("", h)
 		h.Action = func() {
-			if status.WindowsHideStatus {
+			status.WindowsHideStatus.Set(!status.WindowsHideStatus.Get())
+		}
+		status.WindowsHideStatus.Listen("TrayHandleWindowsHideStatus", func(b bool) {
+			if b {
 				h.Label = i18n.Lang().ShowWindow
 				w.Hide()
 			} else {
 				w.Show()
 				h.Label = i18n.Lang().HideWindow
 			}
-			status.WindowsHideStatus = !status.WindowsHideStatus
 			menu.Refresh()
-		}
+		})
 		desk.SetSystemTrayMenu(menu)
 	}
 }

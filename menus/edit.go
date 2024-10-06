@@ -15,7 +15,7 @@ func makeEditMenuSubItem(a fyne.App, w fyne.Window) []*fyne.MenuItem {
 
 	hideInTrayMenu := fyne.NewMenuItem(i18n.Lang().HideInTrayMenu, func() {
 		w.Hide()
-		status.WindowsHideStatus = true
+		status.WindowsHideStatus.Set(true)
 	})
 
 	return []*fyne.MenuItem{themeMenu, hideInTrayMenu}

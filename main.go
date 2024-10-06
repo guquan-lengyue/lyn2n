@@ -40,7 +40,6 @@ func main() {
 	w.SetOnClosed(func() {
 		event.CloseMainWindowsEvent <- event.EmptyEvenVar
 	})
-
 	w.Resize(fyne.NewSize(520, 520))
 	w.ShowAndRun()
 }
