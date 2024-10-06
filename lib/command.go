@@ -77,6 +77,7 @@ func (c *Command) Exec() {
 	go func() {
 		<-event.CloseMainWindowsEvent // 等待信号
 		c.Stop()
+		c.Kill()
 	}()
 	// 等待命令完成
 	if err = c.cmd.Wait(); err != nil {
@@ -134,7 +135,6 @@ func (c *Command) Stop() {
 	if c.cmd == nil {
 		return
 	}
-
 	if runtime.GOOS == "windows" {
 		c.disConnect()
 	} else {
@@ -151,7 +151,6 @@ func (c *Command) Kill() {
 	if c.cmd == nil {
 		return
 	}
-
 	if runtime.GOOS == "windows" {
 		if err := c.cmd.Process.Signal(os.Kill); err != nil {
 			log.Println("Error while killing process: ", err)
