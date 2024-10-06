@@ -38,6 +38,7 @@ func (c *Command) Exec() {
 		return
 	}
 	defer c.running.Unlock()
+	checkN2NEdge()
 	c.timer = time.NewTimer(3 * time.Minute)
 	defer c.timer.Stop()
 	c.cmd = c.genCmd()
