@@ -8,6 +8,8 @@ import (
 type Language struct {
 	Edit           string `json:"edit"`
 	Theme          string `json:"theme"`
+	CreateCfg      string `json:"createCfg"`
+	DelCfg         string `json:"delCfg"`
 	Dark           string `json:"dark"`
 	Light          string `json:"light"`
 	ShowWindow     string `json:"showWindow"`

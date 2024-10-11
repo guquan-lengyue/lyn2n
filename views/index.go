@@ -5,6 +5,7 @@ import (
 	"log"
 	"lyn2n/event"
 	"lyn2n/lib"
+	"lyn2n/status"
 	"os"
 
 	"fyne.io/fyne/v2"
@@ -12,16 +13,16 @@ import (
 	"fyne.io/fyne/v2/widget"
 )
 
-var cfgs []*lib.Config
-
-func loadCfgList(cfgs *[]*lib.Config) {
+func loadCfgList() {
 	file, err := os.OpenFile("cache.json", os.O_RDONLY, 0644)
 	if err != nil {
 		log.Println("Error opening cache.json", err)
 	}
 	defer file.Close()
 	decoder := json.NewDecoder(file)
-	err = decoder.Decode(cfgs)
+	var cfgs []*lib.Config
+	err = decoder.Decode(&cfgs)
+	status.SupernodeConfigs.Set(cfgs)
 	if err != nil {
 		log.Println("Error loading cache.json", err)
 	}
@@ -34,14 +35,17 @@ func saveCfg() {
 	}
 	defer file.Close()
 	encoder := json.NewEncoder(file)
-	err = encoder.Encode(cfgs)
+
+	err = encoder.Encode(status.SupernodeConfigs.Get())
+
 	if err != nil {
 		log.Println("Error loading cache.json", err)
 	}
 }
 
 func MakeContent(a fyne.App, w fyne.Window) fyne.CanvasObject {
-	loadCfgList(&cfgs)
+	status.SupernodeConfigs.Get()
+	loadCfgList()
 
 	spnForm := SupernodeForm{}
 
@@ -55,36 +59,44 @@ func MakeContent(a fyne.App, w fyne.Window) fyne.CanvasObject {
 		saveCfg()
 		l.Refresh()
 	}
+	status.SupernodeConfigs.Listen("handleSupernodeCfgsChangeAndRefreshList", func(c []*lib.Config) {
+		saveCfg()
+		l.Refresh()
+		list.Select(len(c) - 1)
+	})
 	return l
 }
 
-func makeListWidget(spnForm *SupernodeForm, icon *widget.Icon) fyne.CanvasObject {
+func makeListWidget(spnForm *SupernodeForm, icon *widget.Icon) *widget.List {
 	event.CloseMainWindowsEvent.Listen("OnCloseMinWindowsEventSaveConfigs", func(any) {
 		saveCfg()
 	})
 	list := widget.NewList(
 		func() int {
-			return len(cfgs)
+			return len(status.SupernodeConfigs.Get())
 		},
 		func() fyne.CanvasObject {
 			return container.NewHBox(widget.NewIcon(nil), widget.NewLabel("Template Object"))
 		},
 		func(id widget.ListItemID, item fyne.CanvasObject) {
-			item.(*fyne.Container).Objects[1].(*widget.Label).SetText(cfgs[id].ConfigName)
+			item.(*fyne.Container).Objects[1].(*widget.Label).SetText(status.SupernodeConfigs.Get()[id].ConfigName)
 		},
 	)
 	list.OnSelected = func(id widget.ListItemID) {
-		cfg := cfgs[id]
+		cfg := status.SupernodeConfigs.Get()[id]
 		cfg.Selected = true
 		spnForm.LoadCfg(cfg)
 		icon.SetResource(nil)
 	}
 
 	list.OnUnselected = func(id widget.ListItemID) {
-		cfgs[id].Selected = false
+		cfgs := status.SupernodeConfigs.Get()
+		if id < len(cfgs) {
+			cfgs[id].Selected = false
+		}
 	}
 	selectId := 0
-	for i, cfg := range cfgs {
+	for i, cfg := range status.SupernodeConfigs.Get() {
 		if cfg.Selected {
 			selectId = i
 		}

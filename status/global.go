@@ -1,7 +1,5 @@
 package status
 
-var WindowsHideStatus = GlobalStatus[bool]{}
-
 type GlobalStatus[T any] struct {
 	v       T
 	handles map[string]func(T)
