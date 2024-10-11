@@ -16,6 +16,7 @@ type Language struct {
 	Save           string `json:"save"`
 
 	IpEntry        string `json:"ipEntry"`
+	CfgName        string `json:"cfgName"`
 	PortEntry      string `json:"portEntry"`
 	RoomNameEntry  string `json:"roomName"`
 	RoomKeyEntry   string `json:"roomKey"`
@@ -26,6 +27,7 @@ type Language struct {
 	FormHintMyIp   string `json:"formHintMyIp"`
 
 	ErrorInvalidAddr      string `json:"errorInvalidAddr"`
+	ErrorInvalidCfgName   string `json:"errorInvalidCfgName"`
 	ErrorInvalidPort      string `json:"errorInvalidPort"`
 	ErrorRoomNameNotEmpty string `json:"errorRoomNameNotEmpty"`
 

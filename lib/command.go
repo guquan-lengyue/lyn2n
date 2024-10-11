@@ -19,14 +19,19 @@ import (
 	"fyne.io/fyne/v2"
 )
 
-type Command struct {
-	Ip       string `json:"ip"`
-	Port     string `json:"port"`
-	RoomName string `json:"roomName"`
-	RoomKey  string `json:"roomKey"`
-	Encrypt  string `json:"encrypt"`
-	StaticIp string `json:"staticIp"`
+type Config struct {
+	Selected   bool   `json:"selected"`
+	ConfigName string `json:"configName"`
+	Ip         string `json:"ip"`
+	Port       string `json:"port"`
+	RoomName   string `json:"roomName"`
+	RoomKey    string `json:"roomKey"`
+	Encrypt    string `json:"encrypt"`
+	StaticIp   string `json:"staticIp"`
+}
 
+type Command struct {
+	*Config
 	cmd     *exec.Cmd
 	running sync.Mutex
 	timer   *time.Timer
